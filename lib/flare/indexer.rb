@@ -29,11 +29,11 @@ module Flare
     
     def find_by(query)
       resp = @connection.get('select', params: {q: query})
-      resp['response']['docs']
+      resp['response']
     end
     
     def find(id)
-      find_by("id:#{id}").first
+      find_by("id:#{id}")['docs'].first
     end
   end
 end
