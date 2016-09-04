@@ -53,6 +53,7 @@ module Flare #:nodoc:
     # ActiveSupport log levels are integers; this array maps them to the
     # appropriate java.util.logging.Level constant
     LOG_LEVELS = %w(FINE INFO WARNING SEVERE SEVERE INFO)
+    VERIFY_MODES = {VERIFY_NONE: OpenSSL::SSL::VERIFY_NONE, VERIFY_PEER: OpenSSL::SSL::VERIFY_PEER, VERIFY_CLIENT_ONCE: OpenSSL::SSL::VERIFY_CLIENT_ONCE, VERIFY_FAIL_IF_NO_PEER_CERT: OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT}
 
     attr_writer :user_configuration
     #
@@ -103,6 +104,17 @@ module Flare #:nodoc:
         @scheme ||= default_scheme
       end
       @scheme
+    end
+
+    #
+    # The verify_mode to use.
+    #
+    def verify_mode
+      unless defined?(@verify_mode)
+        str = user_configuration_from_key('solr', 'verify_mode')
+        @verify_mode = str.blank? ? nil : VERIFY_MODES[str.to_sym]
+      end
+      @verify_mode
     end
 
     #

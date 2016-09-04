@@ -9,6 +9,8 @@ rescue LoadError
   require 'rubygems'
   require 'rsolr'
 end
+require 'flare/extensions/connection'
+require 'flare/extensions/client'
 
 %w(configuration indexer session).each do |filename|
   require File.join(File.dirname(__FILE__), 'flare', filename)
@@ -116,16 +118,32 @@ module Flare
     #   Primary key of the object. This should be the same id that would be
     #   returned by the class's instance adapter.
     #
-    def remove_by_id(*ids)
-      session.remove_by_id(ids)
+    def delete(*ids)
+      session.delete(ids)
     end
 
     # 
     # Remove an object by class name and primary key, and immediately commit.
-    # See #remove_by_id and #commit
+    # See #delete and #commit
     #
-    def remove_by_id!(*ids)
-      session.remove_by_id!(ids)
+    def delete!(*ids)
+      session.delete!(ids)
+    end
+
+    def delete_by(query)
+      session.remove_by_query(query)
+    end
+    
+    def delete_by!(query)
+      session.remove_by_query!(query)
+    end
+    
+    def find(id)
+      session.find(id)
+    end
+    
+    def find_by(query)
+      session.find_by(query)
     end
 
     #

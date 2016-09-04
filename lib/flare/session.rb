@@ -22,12 +22,12 @@ module Flare
     end
 
     # 
-    # Sunspot::Configuration object for this session
+    # Flare::Configuration object for this session
     #
     attr_reader :config
 
     # 
-    # Sessions are initialized with a Sunspot configuration and a Solr
+    # Sessions are initialized with a Flare configuration and a Solr
     # connection. Usually you will want to stick with the default arguments
     # when instantiating your own sessions.
     #
@@ -39,7 +39,7 @@ module Flare
     end
 
     #
-    # See Sunspot.index
+    # See Flare.index
     #
     def index(*documents)
       documents.flatten!
@@ -48,7 +48,7 @@ module Flare
     end
 
     # 
-    # See Sunspot.index!
+    # See Flare.index!
     #
     def index!(*objects)
       index(*objects)
@@ -56,7 +56,7 @@ module Flare
     end
 
     #
-    # See Sunspot.commit
+    # See Flare.commit
     #
     def commit(soft_commit = false)
       @adds = @deletes = 0
@@ -64,7 +64,7 @@ module Flare
     end
 
     #
-    # See Sunspot.optimize
+    # See Flare.optimize
     #
     def optimize
       @adds = @deletes = 0
@@ -72,43 +72,60 @@ module Flare
     end
 
     # 
-    # See Sunspot.remove_by_id
+    # See Flare.delete_by
     #
-    def remove_by_id(*ids)
-      indexer.remove_by_id(ids)
+    def delete(*ids)
+      indexer.delete(ids)
     end
 
     # 
-    # See Sunspot.remove_by_id!
+    # See Flare.delete_by!
     #
-    def remove_by_id!(*ids)
-      remove_by_id(ids)
+    def delete!(*ids)
+      delete(ids)
       commit
     end
 
+    def delete_by(query)
+      indexer.delete_by(query)
+    end
+    
+    def delete_by!(query)
+      delete_by(query)
+      commit
+    end
+    
+    def find(id)
+      indexer.find(id)
+    end
+    
+    def find_by(query)
+      indexer.find_by(query)
+    end
+
     # 
-    # See Sunspot.dirty?
+    # See Flare.dirty?
     #
     def dirty?
       (@deletes + @adds) > 0
     end
 
     # 
-    # See Sunspot.commit_if_dirty
+    # See Flare.commit_if_dirty
     #
     def commit_if_dirty(soft_commit = false)
       commit soft_commit if dirty?
     end
     
     # 
-    # See Sunspot.delete_dirty?
+    # See Flare.delete_dirty?
     #
     def delete_dirty?
       @deletes > 0
     end
 
     # 
-    # See Sunspot.commit_if_delete_dirty
+    # See Flare.commit_if_delete_dirty
     #
     def commit_if_delete_dirty(soft_commit = false)
       commit soft_commit if delete_dirty?
@@ -125,9 +142,9 @@ module Flare
     # RSolr::Connection::Base:: The connection for this session
     #
     def connection
-      @connection ||= self.class.connection_class.connect(url: config.url, read_timeout: config.read_timeout, open_timeout: config.open_timeout)
+      @connection ||= self.class.connection_class.connect(url: config.url, read_timeout: config.read_timeout, open_timeout: config.open_timeout, verify_mode: config.verify_mode)
     end
-
+    
     def indexer
       @indexer ||= Indexer.new(connection)
     end
