@@ -131,11 +131,11 @@ module Flare
     end
 
     def delete_by(query)
-      session.remove_by_query(query)
+      session.delete_by(query)
     end
     
     def delete_by!(query)
-      session.remove_by_query!(query)
+      session.delete_by!(query)
     end
     
     def find(id)
