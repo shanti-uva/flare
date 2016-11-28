@@ -33,7 +33,7 @@ module Flare
     end
     
     def find(id)
-      find_by("id:#{id}")['docs'].first
+      find_by("uid:#{id}")['docs'].first
     end
   end
 end
