@@ -54,8 +54,13 @@ module Flare #:nodoc:
     # appropriate java.util.logging.Level constant
     LOG_LEVELS = %w(FINE INFO WARNING SEVERE SEVERE INFO)
     VERIFY_MODES = {VERIFY_NONE: OpenSSL::SSL::VERIFY_NONE, VERIFY_PEER: OpenSSL::SSL::VERIFY_PEER, VERIFY_CLIENT_ONCE: OpenSSL::SSL::VERIFY_CLIENT_ONCE, VERIFY_FAIL_IF_NO_PEER_CERT: OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT}
-
+    
     attr_writer :user_configuration
+    
+    def initialize(custom_path_key = nil)
+      @path_key = custom_path_key.blank? ? 'path' : custom_path_key
+    end
+    
     #
     # The host name at which to connect to Solr. Default 'localhost'.
     #
@@ -147,7 +152,7 @@ module Flare #:nodoc:
     def path
       unless defined?(@path)
         @path   = solr_url.path if solr_url
-        @path ||= user_configuration_from_key('solr', 'path')
+        @path ||= user_configuration_from_key('solr', @path_key)
         @path ||= default_path
       end
       @path

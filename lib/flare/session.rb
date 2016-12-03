@@ -72,14 +72,14 @@ module Flare
     end
 
     # 
-    # See Flare.delete_by
+    # See Flare.remove_by
     #
     def delete(*ids)
       indexer.delete(ids)
     end
 
     # 
-    # See Flare.delete_by!
+    # See Flare.remove_by!
     #
     def delete!(*ids)
       delete(ids)
