@@ -35,5 +35,10 @@ module Flare
     def find(id)
       find_by("uid:#{id}")['docs'].first
     end
+
+    def paginate(options)
+      resp = @connection.paginate(options[:page], options[:per_page], 'select', params: {q: options[:query]})
+      WillPaginate::Collection.create(options[:page], options[:per_page], resp['response']['numFound'].to_i) { |pager| pager.replace(resp['response']['docs']) }
+    end
   end
 end

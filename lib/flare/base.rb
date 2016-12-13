@@ -181,7 +181,7 @@ module Flare
         remove_by(query)
         session.commit
       end
-      
+
       def flare_search(id)
         scope = flare_scope
         scope.blank? ? session.find(self.uid(id)) : session.find_by((scope+[self.uid_query(id)]).join(' AND '))['docs'].first
@@ -190,6 +190,13 @@ module Flare
       def search_by(query)
         scope = flare_scope
         scope.blank? ? session.find_by(query) : session.find_by("(#{scope.join(' AND ')}) AND (#{query})")
+      end
+
+      def paginate(options)
+        paginate_options = options.dup
+        scope = flare_scope
+        paginate_options[:query] =  "(#{scope.join(' AND ')}) AND (#{paginate_options[:query]})" unless scope.blank?
+        session.paginate(paginate_options)
       end
 
       #

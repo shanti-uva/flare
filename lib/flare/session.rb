@@ -103,6 +103,10 @@ module Flare
       indexer.find_by(query)
     end
 
+    def paginate(options)
+      indexer.paginate(options)
+    end
+
     # 
     # See Flare.dirty?
     #
