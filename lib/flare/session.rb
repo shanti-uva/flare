@@ -1,4 +1,5 @@
 require 'base64'
+require 'faraday'
 
 module Flare
   # 
@@ -42,7 +43,6 @@ module Flare
     # See Flare.index
     #
     def index(*documents)
-      documents.flatten!
       @adds += documents.length
       indexer.add_documents(documents)
     end
@@ -146,7 +146,13 @@ module Flare
     # RSolr::Connection::Base:: The connection for this session
     #
     def connection
-      @connection ||= self.class.connection_class.connect(url: config.url, read_timeout: config.read_timeout, open_timeout: config.open_timeout, verify_mode: config.verify_mode)
+      if @connection.nil?
+        options = {timeout: config.read_timeout, open_timeout: config.open_timeout}
+        options[:ssl] = {verify_mode: config.verify_mode} unless config.verify_mode.nil?
+        faraday_connection = Faraday.new(options)
+        @connection = self.class.connection_class.connect(faraday_connection, url: config.url)
+      end
+      @connection
     end
     
     def indexer

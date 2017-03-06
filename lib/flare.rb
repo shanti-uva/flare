@@ -11,8 +11,6 @@ rescue LoadError
 end
 require 'flare/base'
 require 'flare/extensions/active_extension'
-require 'flare/extensions/connection'
-require 'flare/extensions/client'
 
 ActiveRecord::Base.send :include, Flare::ActiveExtension
 ActiveResource::Base.send :include, Flare::ActiveExtension
