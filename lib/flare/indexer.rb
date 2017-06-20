@@ -7,8 +7,9 @@ module Flare
   #
   class Indexer #:nodoc:
 
-    def initialize(connection)
+    def initialize(connection, write_connection)
       @connection = connection
+      @write_connection = write_connection
     end
 
     # 
@@ -16,15 +17,15 @@ module Flare
     #
     def delete(*ids)
       ids.flatten!
-      @connection.delete_by_id(ids)
+      @write_connection.delete_by_id(ids)
     end
     
     def add_documents(documents)
-      @connection.add(documents)
+      @write_connection.add(documents)
     end
     
     def delete_by(query)
-      @connection.delete_by_query(query)
+      @write_connection.delete_by_query(query)
     end
     
     def find_by(query)

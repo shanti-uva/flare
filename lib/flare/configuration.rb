@@ -349,14 +349,17 @@ module Flare #:nodoc:
         (user_configuration_from_key('auto_remove_callback') || 'after_destroy')
     end
     
-    def url
+    def url(u = nil)
       res = "#{scheme}://"
-      s = userinfo
-      res << "#{s}@" if !s.blank?
+      res << "#{u}@" if !u.blank?
       res << "#{hostname}"
       s = port
       res << ":#{s}" if !s.blank?
       res << "#{path}"
+    end
+    
+    def write_url
+      self.url(self.userinfo)
     end
 
     private

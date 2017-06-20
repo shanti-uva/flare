@@ -60,7 +60,7 @@ module Flare
     #
     def commit(soft_commit = false)
       @adds = @deletes = 0
-      connection.commit :commit_attributes => {:softCommit => soft_commit}
+      write_connection.commit :commit_attributes => {:softCommit => soft_commit}
     end
 
     #
@@ -68,7 +68,7 @@ module Flare
     #
     def optimize
       @adds = @deletes = 0
-      connection.optimize
+      write_connection.optimize
     end
 
     # 
@@ -155,8 +155,18 @@ module Flare
       @connection
     end
     
+    def write_connection
+      if @write_connection.nil?
+        options = {url: config.url, timeout: config.read_timeout, open_timeout: config.open_timeout}
+        options[:ssl] = {verify_mode: config.verify_mode} unless config.verify_mode.nil?
+        faraday_connection = Faraday.new(options)
+        @write_connection = self.class.connection_class.connect(faraday_connection, url: config.write_url)
+      end
+      @write_connection
+    end
+    
     def indexer
-      @indexer ||= Indexer.new(connection)
+      @indexer ||= Indexer.new(connection, write_connection)
     end
   end
 end
