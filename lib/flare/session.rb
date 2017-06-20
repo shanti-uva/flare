@@ -157,7 +157,7 @@ module Flare
     
     def write_connection
       if @write_connection.nil?
-        options = {url: config.url, timeout: config.read_timeout, open_timeout: config.open_timeout}
+        options = {url: config.write_url, timeout: config.read_timeout, open_timeout: config.open_timeout}
         options[:ssl] = {verify_mode: config.verify_mode} unless config.verify_mode.nil?
         faraday_connection = Faraday.new(options)
         @write_connection = self.class.connection_class.connect(faraday_connection, url: config.write_url)
