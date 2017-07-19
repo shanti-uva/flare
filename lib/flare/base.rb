@@ -32,6 +32,7 @@ module Flare
     def index
       klass = self.class
       begin
+        self.remove
         klass.session.index(document_for_rsolr)
         return true
       rescue => e
@@ -45,6 +46,7 @@ module Flare
     def index!
       klass = self.class
       begin
+        self.remove
         klass.session.index!(document_for_rsolr)
         return true
       rescue => e
