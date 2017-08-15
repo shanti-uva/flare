@@ -57,8 +57,9 @@ module Flare #:nodoc:
     
     attr_writer :user_configuration
     
-    def initialize(custom_path_key = nil)
+    def initialize(custom_path_key = nil,custom_asset_path_key = nil)
       @path_key = custom_path_key.blank? ? 'path' : custom_path_key
+      @asset_path_key = custom_asset_path_key.blank? ? 'asset_path' : custom_asset_path_key
     end
     
     #
@@ -156,6 +157,23 @@ module Flare #:nodoc:
         @path ||= default_path
       end
       @path
+    end
+
+    #
+    # The url asset_path to the Solr servlet (useful if you are running multicore).
+    # Default '/solr/default'.
+    #
+    # ==== Returns
+    #
+    # String:: asset_path
+    #
+    def asset_path
+      unless defined?(@asset_path)
+        @asset_path   = solr_url.path if solr_url
+        @asset_path ||= user_configuration_from_key('solr', @asset_path_key)
+        @asset_path ||= default_asset_path
+      end
+      @asset_path
     end
 
     #
@@ -357,6 +375,15 @@ module Flare #:nodoc:
       res << ":#{s}" if !s.blank?
       res << "#{path}"
     end
+
+    def asset_url(u = nil)
+      res = "#{scheme}://"
+      res << "#{u}@" if !u.blank?
+      res << "#{hostname}"
+      s = port
+      res << ":#{s}" if !s.blank?
+      res << "#{asset_path}"
+    end
     
     def write_url
       self.url(self.userinfo)
@@ -440,6 +467,9 @@ module Flare #:nodoc:
 
     def default_path
       '/solr/default'
+    end
+    def default_asset_path
+      '/solr/asset_default'
     end
   end
 end
