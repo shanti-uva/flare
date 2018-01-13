@@ -55,7 +55,7 @@ module Flare #:nodoc:
     LOG_LEVELS = %w(FINE INFO WARNING SEVERE SEVERE INFO)
     VERIFY_MODES = {VERIFY_NONE: OpenSSL::SSL::VERIFY_NONE, VERIFY_PEER: OpenSSL::SSL::VERIFY_PEER, VERIFY_CLIENT_ONCE: OpenSSL::SSL::VERIFY_CLIENT_ONCE, VERIFY_FAIL_IF_NO_PEER_CERT: OpenSSL::SSL::VERIFY_FAIL_IF_NO_PEER_CERT}
     
-    attr_writer :user_configuration
+    #attr_writer :user_configuration
     
     def initialize(custom_path_key = nil,custom_asset_path_key = nil)
       @path_key = custom_path_key.blank? ? 'path' : custom_path_key
@@ -388,6 +388,13 @@ module Flare #:nodoc:
     def write_url
       self.url(self.userinfo)
     end
+    
+    def uid_prefix
+      unless defined?(@uid_prefix)
+        @uid_prefix ||= default_configuration_from_key('solr', 'uid_prefix')
+      end
+      @uid_prefix
+    end
 
     private
 
@@ -416,6 +423,20 @@ module Flare #:nodoc:
       end
     end
 
+    def default_configuration_from_key( *keys )
+      keys.inject(default_configuration) do |hash, key|
+        hash[key] if hash
+      end
+    end
+
+    def all_configurations
+      @all_configurations ||=
+        begin
+          settings_file = Rails.root.join('config', 'flare.yml')
+          settings_file.exist? ? YAML.load_file(settings_file) : {}
+        end
+    end
+
     #
     # Memoized hash of configuration options for the current Rails environment
     # as specified in config/sunspot.yml
@@ -425,18 +446,11 @@ module Flare #:nodoc:
     # Hash:: configuration options for current environment
     #
     def user_configuration
-      @user_configuration ||=
-        begin
-          path = File.join(::Rails.root, 'config', 'flare.yml')
-          if File.exist?(path)
-            File.open(path) do |file|
-              processed = ERB.new(file.read).result
-              YAML.load(processed)[::Rails.env]
-            end
-          else
-            {}
-          end
-        end
+      @user_configuration ||= all_configurations[::Rails.env]
+    end
+    
+    def default_configuration
+      @default_configuration ||= all_configurations['default']
     end
     
   protected

@@ -289,8 +289,9 @@ module Flare
       end
     
       def setup(options)
-        @session = Session.new(Flare::Configuration.new(options[:path]))
-        @uid_prefix = options[:uid_prefix]
+        config = Flare::Configuration.new(options[:path])
+        @session = Session.new(config)
+        @uid_prefix = config.uid_prefix
         scope_hash = options[:scope]
         @scope = scope_hash.blank? ? [] : scope_hash.to_a.collect{|e| e.join(':')}
       end
