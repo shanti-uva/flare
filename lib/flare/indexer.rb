@@ -28,9 +28,11 @@ module Flare
       @write_connection.delete_by_query(query)
     end
     
-    def find_by(query)
-      resp = @connection.get('select', params: {q: query})
-      resp['response']
+    def find_by(query, options = {}, full_response=false)
+      params = {q: query}
+      params = options.empty? ? params : params.merge(options)
+      resp = @connection.get('select', params: params)
+      full_response ? resp : resp['response']
     end
     
     def find(id)
