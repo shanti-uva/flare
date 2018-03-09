@@ -99,8 +99,8 @@ module Flare
       indexer.find(id)
     end
     
-    def find_by(query, options = {}, full_response = false)
-      indexer.find_by(query, options, full_response)
+    def find_by(query, options = {})
+      indexer.find_by(query, options)
     end
 
     def paginate(options)
