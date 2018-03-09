@@ -30,7 +30,9 @@ module Flare
     
     def find_by(query, options = {})
       params = {q: query}
-      if !options.empty?
+      if options.empty?
+        full_response = false
+      else
         full_response = options[:group] || false
         params.merge!(options)
       end
