@@ -189,9 +189,9 @@ module Flare
         scope.blank? ? session.find(self.uid(id)) : session.find_by((scope+[self.uid_query(id)]).join(' AND '))['docs'].first
       end
           
-      def search_by(query, options = {}, full_response = false)
+      def search_by(query, options = {})
         scope = flare_scope
-        scope.blank? ? session.find_by(query,options, full_response) : session.find_by("(#{scope.join(' AND ')}) AND (#{query})", options, full_response)
+        scope.blank? ? session.find_by(query,options) : session.find_by("(#{scope.join(' AND ')}) AND (#{query})", options)
       end
 
       def paginate(options)
