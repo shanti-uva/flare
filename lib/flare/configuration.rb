@@ -395,7 +395,14 @@ module Flare #:nodoc:
       end
       @uid_prefix
     end
-
+    
+    def uid_code
+      unless defined?(@uid_code)
+        @uid_code ||= default_configuration_from_key('solr', 'uid_code')
+      end
+      @uid_code
+    end
+    
     private
 
     #

@@ -283,7 +283,11 @@ module Flare
       def uid_prefix
         @uid_prefix ||= nil
       end
-
+      
+      def uid_code
+        @uid_code ||= nil
+      end
+      
       def flare_scope
         @scope ||= []
       end
@@ -292,7 +296,9 @@ module Flare
         config = Flare::Configuration.new(options[:path])
         @session = Session.new(config)
         options_prefix = options[:uid_prefix]
+        options_code = options[:uid_code]
         @uid_prefix = options_prefix.blank? ? config.uid_prefix : options_prefix
+        @uid_code = options_code.blank? ? config.uid_code : options_code
         scope_hash = options[:scope]
         @scope = scope_hash.blank? ? [] : scope_hash.to_a.collect{|e| e.join(':')}
       end
