@@ -145,9 +145,10 @@ module Flare
       #
       def remove(*ids)
         return if ids.blank?
+        ids.flatten!
         scope = self.flare_scope
         if scope.blank?
-          session.delete(ids)
+          session.delete(ids.collect{ |id| self.uid(id) })
         else
           if ids.size==1
             session.delete_by((scope+[self.uid_query(ids.first)]).join(' AND '))
