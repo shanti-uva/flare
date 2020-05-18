@@ -3,6 +3,7 @@ module Flare
     extend ActiveSupport::Concern
     
     included do
+      handle_asynchronously :queued_index
     end
     
     def uid
@@ -33,7 +34,7 @@ module Flare
       klass = self.class
       begin
         self.remove
-        klass.session.index(document_for_rsolr)
+        klass.session.index(self.document_for_rsolr)
         return true
       rescue => e
         logger.error "Solr index could not be updated for feature #{self.uid}"
@@ -42,12 +43,16 @@ module Flare
         return false
       end
     end
-
+    
     def index!
+      self.queued_index if !Flare::DelayedJob.includes?(self, 'queued_index_without_delay')
+    end
+    
+    def queued_index
       klass = self.class
       begin
         self.remove
-        klass.session.index!(document_for_rsolr)
+        klass.session.index!(self.document_for_rsolr)
         return true
       rescue => e
         logger.error "Solr index could not be updated for feature #{self.uid}"

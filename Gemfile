@@ -1,4 +1,5 @@
 source "https://rubygems.org"
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 # Declare your gem's dependencies in flare.gemspec.
 # Bundler will treat runtime dependencies like base dependencies, and
@@ -11,4 +12,6 @@ gemspec
 # your gem to rubygems.org.
 
 # To use debugger
-# gem 'debugger'
+# gem 'byebug', group: [:development, :test]
+gem 'activeresource', require: 'active_resource'
+gem 'delayed_job_active_record'

@@ -4,22 +4,37 @@ $:.push File.expand_path('../lib', __FILE__)
 require 'flare/version'
 
 # Describe your gem and declare its dependencies:
-Gem::Specification.new do |s|
-  s.name        = 'flare'
-  s.version     = Flare::VERSION
-  s.authors     = ["Andres Montano"]
-  s.email       = ["amontano@virginia.edu"]
-  s.homepage    = "http://subjects.kmaps.virginia.edu"
-  s.summary     = 'Engine that facilitates in a flexible manner connections to solr indices.'
-  s.description = 'Engine that facilitates in a flexible manner connections to solr indices.'
-  s.license     = 'MIT'
-
-  s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
-  s.test_files = Dir['test/**/*']
+Gem::Specification.new do |spec|
+  spec.name        = 'flare'
+  spec.version     = Flare::VERSION
+  spec.authors     = ["Andres Montano"]
+  spec.email       = ["amontano@virginia.edu"]
+  spec.homepage    = "http://subjects.kmaps.virginia.edu"
+  spec.summary     = 'Engine that facilitates in a flexible manner connections to solr indices.'
+  spec.description = 'Engine that facilitates in a flexible manner connections to solr indices.'
+  spec.license     = 'MIT'
   
-  s.add_dependency 'rails', '>= 4.0'
-  s.add_dependency 'faraday', '~> 0.11.0'
-  s.add_dependency 'rsolr', '~> 2.0.0.pre3'
+  # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
+  # to allow pushing to a single host or delete this section to allow pushing to any host.
+  if spec.respond_to?(:metadata)
+    spec.metadata["allowed_push_host"] = "TODO: Set to 'http://mygemserver.com'"
+  else
+    raise "RubyGems 2.0 or newer is required to protect against " \
+      "public gem pushes."
+  end
 
-  s.add_development_dependency 'sqlite3'
+  spec.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
+  
+  spec.add_dependency "rails", "~> 5.2.4", ">= 5.2.4.2"
+  spec.add_dependency "activeresource"
+  spec.add_dependency 'faraday', '~> 0.11.0'
+  spec.add_dependency 'rsolr', '~> 2.0.0.pre3'
+  spec.add_dependency 'delayed_job_active_record'
+  spec.add_dependency 'daemons'
+
+  spec.add_development_dependency 'sqlite3'
+  
+  #Testing dependencies
+  spec.add_development_dependency 'rspec-rails'
+  spec.test_files = Dir["spec/**/*"]
 end

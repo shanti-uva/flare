@@ -1,3 +1,4 @@
+require "flare/engine"
 require 'set'
 require 'time'
 require 'date'
@@ -9,7 +10,11 @@ rescue LoadError
   require 'rubygems'
   require 'rsolr'
 end
+require 'active_resource'
+require 'delayed_job'
+
 require 'flare/base'
+require 'flare/delayed_job'
 require 'flare/extensions/active_extension'
 
 ActiveRecord::Base.send :include, Flare::ActiveExtension
