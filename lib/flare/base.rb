@@ -34,7 +34,7 @@ module Flare
       klass = self.class
       begin
         self.remove
-        klass.session.index(self.document_for_rsolr)
+        klass.session.index(document_for_rsolr)
         return true
       rescue => e
         logger.error "Solr index could not be updated for feature #{self.uid}"
@@ -52,7 +52,7 @@ module Flare
       klass = self.class
       begin
         self.remove
-        klass.session.index!(self.document_for_rsolr)
+        klass.session.index!(document_for_rsolr)
         return true
       rescue => e
         logger.error "Solr index could not be updated for feature #{self.uid}"
