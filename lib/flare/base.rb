@@ -2,10 +2,6 @@ module Flare
   module Base
     extend ActiveSupport::Concern
     
-    included do
-      handle_asynchronously :queued_index
-    end
-    
     def uid
       self.class.uid(self.id)
     end
@@ -45,10 +41,6 @@ module Flare
     end
     
     def index!
-      self.queued_index if !Flare::DelayedJob.includes?(self, 'queued_index_without_delay')
-    end
-    
-    def queued_index
       klass = self.class
       begin
         self.remove
@@ -60,6 +52,10 @@ module Flare
         logger.error e.backtrace.join("\n")
         return false
       end
+    end
+    
+    def queued_index(priority: Flare::IndexerJob::MEDIUM)
+      IndexerJob.set(priority: priority).perform_later(self)
     end
     
     module ClassMethods

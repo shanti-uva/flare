@@ -31,8 +31,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'rsolr', '~> 2.0.0.pre3'
   spec.add_dependency 'delayed_job_active_record'
   spec.add_dependency 'daemons'
-
-  spec.add_development_dependency 'sqlite3'
+  spec.add_dependency 'pg'
   
   #Testing dependencies
   spec.add_development_dependency 'rspec-rails'

@@ -14,7 +14,6 @@ require 'active_resource'
 require 'delayed_job'
 
 require 'flare/base'
-require 'flare/delayed_job'
 require 'flare/extensions/active_extension'
 
 ActiveRecord::Base.send :include, Flare::ActiveExtension
