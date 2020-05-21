@@ -11,13 +11,16 @@ rescue LoadError
   require 'rsolr'
 end
 require 'active_resource'
-require 'delayed_job'
+require 'delayed_job_active_record'
+
 
 require 'flare/base'
 require 'flare/extensions/active_extension'
+require 'flare/extensions/delayed_job'
 
 ActiveRecord::Base.send :include, Flare::ActiveExtension
 ActiveResource::Base.send :include, Flare::ActiveExtension
+Delayed::Job.send :include, Flare::DelayedJobExtension
 
 %w(configuration indexer session).each do |filename|
   require File.join(File.dirname(__FILE__), 'flare', filename)

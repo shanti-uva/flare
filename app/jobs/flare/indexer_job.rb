@@ -8,15 +8,13 @@ module Flare
         
     around_enqueue do |job, block|
       object = job.arguments.first
-      klass_name = object.class.name
-      id = object.id
-      priority = job.priority || 0
-      previous = Delayed::Job.where(reference_id: id, reference_type: klass_name).first
+      previous = Delayed::Job.where(reference: object).first
       if previous.nil?
         block.call
         delayed_job = Delayed::Job.find(job.provider_job_id)
-        delayed_job.update!(reference_id: id, reference_type: klass_name)
+        delayed_job.update!(reference: object)
       else
+        priority = job.priority || 0
         previous.update!(priority: priority) if priority < previous.priority
       end
     end
