@@ -28,30 +28,16 @@ module Flare
     
     def index
       klass = self.class
-      begin
-        self.remove
-        klass.session.index(document_for_rsolr)
-        return true
-      rescue => e
-        logger.error "Solr index could not be updated for feature #{self.uid}"
-        logger.error e.to_s
-        logger.error e.backtrace.join("\n")
-        return false
-      end
+      self.remove
+      klass.session.index(document_for_rsolr)
+      return true
     end
     
     def index!
       klass = self.class
-      begin
-        self.remove
-        klass.session.index!(document_for_rsolr)
-        return true
-      rescue => e
-        logger.error "Solr index could not be updated for feature #{self.uid}"
-        logger.error e.to_s
-        logger.error e.backtrace.join("\n")
-        return false
-      end
+      self.remove
+      klass.session.index!(document_for_rsolr)
+      return true
     end
     
     def queued_index(priority: Flare::IndexerJob::MEDIUM)
