@@ -9,8 +9,7 @@ module Flare #:nodoc:
   #
   #   development:
   #     solr:
-  #       hostname: localhost
-  #       port: 8982
+  #       hostname: localhost:8982
   #       min_memory: 512M
   #       max_memory: 1G
   #       solr_jar: /some/path/solr15/start.jar
@@ -18,8 +17,7 @@ module Flare #:nodoc:
   #     disabled: false
   #   test:
   #     solr:
-  #       hostname: localhost
-  #       port: 8983
+  #       hostname: localhost:8983
   #       log_level: OFF
   #       open_timeout: 0.5
   #       read_timeout: 2
@@ -28,26 +26,17 @@ module Flare #:nodoc:
   #       scheme: http
   #       user: username
   #       pass: password
-  #       hostname: localhost
-  #       port: 8983
+  #       hostname: localhost:8983
   #       path: /solr/myindex
   #       log_level: WARNING
   #       solr_home: /some/path
   #       open_timeout: 0.5
   #       read_timeout: 2
-  #     master_solr:
-  #       hostname: localhost
-  #       port: 8982
-  #       path: /solr
   #     auto_index_callback: after_commit
   #     auto_remove_callback: after_commit
   #     auto_commit_after_request: true
   #
   # Flare::Configuration uses the configuration to set up the Solr connection.
-  #
-  # If the <code>master_solr</code> configuration is present, Sunspot will use
-  # the Solr instance specified here for all write operations, and the Solr
-  # configured under <code>solr</code> for all read operations.
   #
   class Configuration
     # ActiveSupport log levels are integers; this array maps them to the
@@ -57,9 +46,9 @@ module Flare #:nodoc:
     
     #attr_writer :user_configuration
     
-    def initialize(custom_path_key = nil,custom_asset_path_key = nil)
-      @path_key = custom_path_key.blank? ? 'path' : custom_path_key
-      @asset_path_key = custom_asset_path_key.blank? ? 'asset_path' : custom_asset_path_key
+    def initialize(path: nil, hostname: nil)
+      @path_key = path.blank? ? 'path' : path
+      @hostname_key = hostname.blank? ? 'hostname' : hostname
     end
     
     #
@@ -72,27 +61,11 @@ module Flare #:nodoc:
     def hostname
       unless defined?(@hostname)
         @hostname   = solr_url.host if solr_url
-        @hostname ||= user_configuration_from_key('solr', 'hostname')
+        @hostname ||= default_configuration_from_key('solr', @hostname_key)
+        @hostname ||= user_configuration_from_key('solr', @hostname_key)
         @hostname ||= default_hostname
       end
       @hostname
-    end
-
-    #
-    # The port at which to connect to Solr.
-    # Defaults to 8981 in test, 8982 in development and 8983 in production.
-    #
-    # ==== Returns
-    #
-    # Integer:: port
-    #
-    def port
-      unless defined?(@port)
-        @port   = solr_url.port if solr_url
-        @port ||= user_configuration_from_key('solr', 'port')
-        @port   = @port.to_i if !@port.blank?
-      end
-      @port
     end
 
     #
@@ -106,6 +79,7 @@ module Flare #:nodoc:
     def scheme
       unless defined?(@scheme)
         @scheme   = solr_url.scheme if solr_url
+        @scheme ||= default_configuration_from_key('solr', 'scheme')
         @scheme ||= user_configuration_from_key('solr', 'scheme')
         @scheme ||= default_scheme
       end
@@ -117,7 +91,8 @@ module Flare #:nodoc:
     #
     def verify_mode
       unless defined?(@verify_mode)
-        str = user_configuration_from_key('solr', 'verify_mode')
+        str = default_configuration_from_key('solr', 'verify_mode')
+        str ||= user_configuration_from_key('solr', 'verify_mode')
         @verify_mode = str.blank? ? nil : VERIFY_MODES[str.to_sym]
       end
       @verify_mode
@@ -134,8 +109,10 @@ module Flare #:nodoc:
     def userinfo
       unless defined?(@userinfo)
         @userinfo   = solr_url.userinfo if solr_url
-        user = user_configuration_from_key('solr', 'user')
-        pass = user_configuration_from_key('solr', 'pass')
+        user = default_configuration_from_key('solr', 'user')
+        pass = default_configuration_from_key('solr', 'pass')
+        user ||= user_configuration_from_key('solr', 'user')
+        pass ||= user_configuration_from_key('solr', 'pass')
         @userinfo ||= [ user, pass ].compact.join(":") if user && pass
         @userinfo ||= default_userinfo
       end
@@ -153,76 +130,13 @@ module Flare #:nodoc:
     def path
       unless defined?(@path)
         @path   = solr_url.path if solr_url
+        @path ||= default_configuration_from_key('solr', @path_key)
         @path ||= user_configuration_from_key('solr', @path_key)
         @path ||= default_path
       end
       @path
     end
-
-    #
-    # The url asset_path to the Solr servlet (useful if you are running multicore).
-    # Default '/solr/default'.
-    #
-    # ==== Returns
-    #
-    # String:: asset_path
-    #
-    def asset_path
-      unless defined?(@asset_path)
-        @asset_path   = solr_url.path if solr_url
-        @asset_path ||= user_configuration_from_key('solr', @asset_path_key)
-        @asset_path ||= default_asset_path
-      end
-      @asset_path
-    end
-
-    #
-    # The host name at which to connect to the master Solr instance. Defaults
-    # to the 'hostname' configuration option.
-    #
-    # ==== Returns
-    #
-    # String:: host name
-    #
-    def master_hostname
-      @master_hostname ||= (user_configuration_from_key('master_solr', 'hostname') || hostname)
-    end
-
-    #
-    # The port at which to connect to the master Solr instance. Defaults to
-    # the 'port' configuration option.
-    #
-    # ==== Returns
-    #
-    # Integer:: port
-    #
-    def master_port
-      @master_port ||= (user_configuration_from_key('master_solr', 'port') || port).to_i
-    end
-
-    #
-    # The path to the master Solr servlet (useful if you are running multicore).
-    # Defaults to the value of the 'path' configuration option.
-    #
-    # ==== Returns
-    #
-    # String:: path
-    #
-    def master_path
-      @master_path ||= (user_configuration_from_key('master_solr', 'path') || path)
-    end
-
-    #
-    # True if there is a master Solr instance configured, otherwise false.
-    #
-    # ==== Returns
-    #
-    # Boolean:: bool
-    #
-    def has_master?
-      @has_master = !!user_configuration_from_key('master_solr')
-    end
-
+    
     #
     # The default log_level that should be passed to solr. You can
     # change the individual log_levels in the solr admin interface.
@@ -234,10 +148,9 @@ module Flare #:nodoc:
     # String:: log_level
     #
     def log_level
-      @log_level ||= (
-        user_configuration_from_key('solr', 'log_level') ||
-        LOG_LEVELS[::Rails.logger.level]
-      )
+      @log_level = default_configuration_from_key('solr', 'log_level')
+      @log_level ||= user_configuration_from_key('solr', 'log_level')
+      @log_level ||= LOG_LEVELS[::Rails.logger.level]
     end
 
     #
@@ -368,23 +281,17 @@ module Flare #:nodoc:
     end
     
     def url(u = nil)
-      res = "#{scheme}://"
-      res << "#{u}@" if !u.blank?
-      res << "#{hostname}"
-      s = port
-      res << ":#{s}" if !s.blank?
-      res << "#{path}"
+      s = self.hostname
+      if !s.start_with? 'http'
+        res = "#{self.scheme}://"
+        res << "#{u}@" if !u.blank?
+        res << s
+      else
+        res = s.dup
+      end
+      res << "#{self.path}"
     end
 
-    def asset_url(u = nil)
-      res = "#{scheme}://"
-      res << "#{u}@" if !u.blank?
-      res << "#{hostname}"
-      s = port
-      res << ":#{s}" if !s.blank?
-      res << "#{asset_path}"
-    end
-    
     def write_url
       self.url(self.userinfo)
     end
@@ -488,9 +395,6 @@ module Flare #:nodoc:
 
     def default_path
       '/solr/default'
-    end
-    def default_asset_path
-      '/solr/asset_default'
     end
   end
 end

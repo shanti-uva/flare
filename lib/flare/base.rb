@@ -281,7 +281,7 @@ module Flare
       end
     
       def setup(options)
-        config = Flare::Configuration.new(options[:path])
+        config = Flare::Configuration.new(hostname: options[:hostname], path: options[:path])
         @session = Session.new(config)
         options_prefix = options[:uid_prefix]
         options_code = options[:uid_code]
