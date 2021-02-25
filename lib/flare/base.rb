@@ -15,6 +15,20 @@ module Flare
       scope = klass.flare_scope
       scope.blank? ? klass.session.find(self.uid) : klass.session.find_by((scope+[self.uid_query]).join(' AND '))['docs'].first
     end
+
+    def remove_subdocs
+      klass = self.class
+      klass.session.delete_by((klass.flare_scope+["#{self.uid_query}_*"]).join(' AND '))
+    end
+    
+    def remove_orphaned_subdocs
+      klass = self.class
+      doc = self.search
+      version = doc['_version_']
+      return if version.nil?
+      klass.session.delete_by((klass.flare_scope + [self.uid_query, "NOT _version_:#{version}"]).join(' AND '))
+    end
+
     
     def remove
       klass = self.class
@@ -28,14 +42,18 @@ module Flare
     
     def index
       klass = self.class
-      self.remove
-      klass.session.index(document_for_rsolr)
-      return true
+      log = Rails.logger
+      #self.remove_subdocs
+      doc = document_for_rsolr
+      log.fatal { "#{Flare::IndexerJob.now}: [INDEX] document prepared for #{self.id}." }
+      klass.session.index(doc)
+      #self.commit(true) at least soft commit would be needed fetching latest version to identify orphans (previous versions)
+      #self.remove_orphaned_subdocs
     end
     
     def index!
       klass = self.class
-      self.remove
+      self.remove_subdocs
       klass.session.index!(document_for_rsolr)
       return true
     end
