@@ -35,14 +35,8 @@ module Flare
     
     def index!
       klass = self.class
-      log = Rails.logger
-      log.fatal { "#{Time.now}: [INDEX] beginning indexing of #{self.id}." }
       self.remove
-      log.fatal { "#{Time.now}: [INDEX] Deleted #{self.id}." }
-      doc = document_for_rsolr
-      log.fatal { "#{Time.now}: [INDEX] Document prepared for #{self.id}." }
-      klass.session.index!()
-      log.fatal { "#{Time.now}: [INDEX] Document committed for #{self.id}." }
+      klass.session.index!(document_for_rsolr)
       return true
     end
     

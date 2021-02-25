@@ -20,7 +20,9 @@ module Flare
     end
     
     def perform(object)
+      Rails.logger.fatal { "#{Time.now}: [INDEX] beginning indexing of #{object.id}." }
       object.index!
+      Rails.logger.fatal { "#{Time.now}: [INDEX] Document committed for #{object.id}." }
     end
   end
 end
