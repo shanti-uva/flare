@@ -5,7 +5,7 @@ module Flare
     HIGH = 0
     
     queue_as :default
-        
+    @@count = 0
     around_enqueue do |job, block|
       object = job.arguments.first
       previous = Delayed::Job.where(reference: object).first
@@ -21,8 +21,18 @@ module Flare
     
     def perform(object)
       Rails.logger.fatal { "#{Time.now}: [INDEX] beginning indexing of #{object.id}." }
-      object.index!
-      Rails.logger.fatal { "#{Time.now}: [INDEX] document committed for #{object.id}." }
+      object.index
+      Rails.logger.fatal { "#{Time.now}: [INDEX] document indexed for #{object.id}." }
+    end
+    
+    after_perform do |job|
+      if @@count == 100
+        Flare.commit
+        Rails.logger.fatal { "#{Time.now}: [INDEX] commiting index." }
+        @@count = 0
+      else
+        @@count += 1
+      end
     end
   end
 end
