@@ -15,6 +15,12 @@ module Flare
       scope = klass.flare_scope
       scope.blank? ? klass.session.find(self.uid) : klass.session.find_by((scope+[self.uid_query]).join(' AND '))['docs'].first
     end
+
+    def remove_subdocs
+      klass = self.class
+      klass.session.delete_by((klass.flare_scope+["#{self.uid_query}_*"]).join(' AND '))
+    end
+
     
     def remove
       klass = self.class
@@ -29,8 +35,8 @@ module Flare
     def index
       klass = self.class
       log = Rails.logger
-      self.remove
-      log.fatal { "#{Time.now}: [INDEX] deleted #{self.id}." }
+      self.remove_subdocs
+      log.fatal { "#{Time.now}: [INDEX] deleted subdocuments for #{self.id}." }
       doc = document_for_rsolr
       log.fatal { "#{Time.now}: [INDEX] document prepared for #{self.id}." }
       klass.session.index(doc)
@@ -39,7 +45,7 @@ module Flare
     
     def index!
       klass = self.class
-      self.remove
+      self.remove_subdocs
       klass.session.index!(document_for_rsolr)
       return true
     end
