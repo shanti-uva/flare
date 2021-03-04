@@ -4,6 +4,7 @@ module Flare
 
     START_HOUR = 8
     END_HOUR = 17
+    GMT_OFFSET = -5
     DELAY = 15
         
     def wait_if_business_hours(daylight)
@@ -19,7 +20,7 @@ module Flare
 
     module ClassMethods
       def now
-        Time.now
+        Time.now + GMT_OFFSET.hours
       end
 
       def start_time
