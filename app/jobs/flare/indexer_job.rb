@@ -1,5 +1,9 @@
+require 'flare/time_utils'
+
 module Flare
   class IndexerJob < ApplicationJob
+    include Flare::TimeUtils
+    
     LOW = 6
     MEDIUM = 3
     HIGH = 0
@@ -20,6 +24,7 @@ module Flare
     end
     
     def perform(object)
+      IndexerJob.delay_if_business_hours
       Rails.logger.fatal { "#{Time.now}: [INDEX] beginning indexing of #{object.id}." }
       object.index
       Rails.logger.fatal { "#{Time.now}: [INDEX] document indexed for #{object.id}." }
