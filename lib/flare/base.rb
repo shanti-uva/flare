@@ -45,7 +45,7 @@ module Flare
       log = Rails.logger
       #self.remove_subdocs
       doc = document_for_rsolr
-      log.fatal { "#{Time.now}: [INDEX] document prepared for #{self.id}." }
+      log.fatal { "#{Flare::IndexerJob.now}: [INDEX] document prepared for #{self.id}." }
       klass.session.index(doc)
       #self.commit(true) at least soft commit would be needed fetching latest version to identify orphans (previous versions)
       #self.remove_orphaned_subdocs

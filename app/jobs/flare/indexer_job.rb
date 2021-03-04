@@ -25,9 +25,9 @@ module Flare
     
     def perform(object)
       IndexerJob.delay_if_business_hours
-      Rails.logger.fatal { "#{Time.now}: [INDEX] beginning indexing of #{object.id}." }
+      Rails.logger.fatal { "#{IndexerJob.now}: [INDEX] beginning indexing of #{object.id}." }
       object.index
-      Rails.logger.fatal { "#{Time.now}: [INDEX] document indexed for #{object.id}." }
+      Rails.logger.fatal { "#{IndexerJob.now}: [INDEX] document indexed for #{object.id}." }
     end
   end
 end
