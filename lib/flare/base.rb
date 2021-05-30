@@ -308,6 +308,10 @@ module Flare
         scope_hash = options[:scope]
         @scope = scope_hash.blank? ? [] : scope_hash.to_a.collect{|e| e.join(':')}
       end
+      
+      def oldest_document
+        self.search_by("tree:#{self.uid_prefix}", sort: '_timestamp_ ASC', rows: 1)['docs'].first
+      end
     end
   end
 end

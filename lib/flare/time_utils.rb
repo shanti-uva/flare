@@ -1,12 +1,12 @@
 module Flare
   module TimeUtils
     extend ActiveSupport::Concern
-
+    
     START_HOUR = 8
     END_HOUR = 17
     GMT_OFFSET = -5
     DELAY = 15
-        
+    
     def wait_if_business_hours(daylight)
       return if daylight.blank?
       now = self.class.now
