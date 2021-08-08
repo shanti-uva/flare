@@ -61,13 +61,12 @@ module Flare #:nodoc:
     def hostname
       unless defined?(@hostname)
         @hostname   = solr_url.host if solr_url
-        @hostname ||= default_configuration_from_key('solr', @hostname_key)
-        @hostname ||= user_configuration_from_key('solr', @hostname_key)
+        @hostname ||= configuration_from_key('solr', @hostname_key)
         @hostname ||= default_hostname
       end
       @hostname
     end
-
+    
     #
     # The scheme to use, http or https.
     # Defaults to http
@@ -79,25 +78,23 @@ module Flare #:nodoc:
     def scheme
       unless defined?(@scheme)
         @scheme   = solr_url.scheme if solr_url
-        @scheme ||= default_configuration_from_key('solr', 'scheme')
-        @scheme ||= user_configuration_from_key('solr', 'scheme')
+        @scheme ||= configuration_from_key('solr', 'scheme')
         @scheme ||= default_scheme
       end
       @scheme
     end
-
+    
     #
     # The verify_mode to use.
     #
     def verify_mode
       unless defined?(@verify_mode)
-        str = default_configuration_from_key('solr', 'verify_mode')
-        str ||= user_configuration_from_key('solr', 'verify_mode')
+        str = configuration_from_key('solr', 'verify_mode')
         @verify_mode = str.blank? ? nil : VERIFY_MODES[str.to_sym]
       end
       @verify_mode
     end
-
+    
     #
     # The userinfo used for authentication, a colon-delimited string like "user:pass"
     # Defaults to nil, which means no authentication
@@ -109,16 +106,14 @@ module Flare #:nodoc:
     def userinfo
       unless defined?(@userinfo)
         @userinfo   = solr_url.userinfo if solr_url
-        user = default_configuration_from_key('solr', 'user')
-        pass = default_configuration_from_key('solr', 'pass')
-        user ||= user_configuration_from_key('solr', 'user')
-        pass ||= user_configuration_from_key('solr', 'pass')
+        user = configuration_from_key('solr', 'user')
+        pass = configuration_from_key('solr', 'pass')
         @userinfo ||= [ user, pass ].compact.join(":") if user && pass
         @userinfo ||= default_userinfo
       end
       @userinfo
     end
-
+    
     #
     # The url path to the Solr servlet (useful if you are running multicore).
     # Default '/solr/default'.
@@ -130,8 +125,7 @@ module Flare #:nodoc:
     def path
       unless defined?(@path)
         @path   = solr_url.path if solr_url
-        @path ||= default_configuration_from_key('solr', @path_key)
-        @path ||= user_configuration_from_key('solr', @path_key)
+        @path ||= configuration_from_key('solr', @path_key)
         @path ||= default_path
       end
       @path
@@ -148,11 +142,10 @@ module Flare #:nodoc:
     # String:: log_level
     #
     def log_level
-      @log_level = default_configuration_from_key('solr', 'log_level')
-      @log_level ||= user_configuration_from_key('solr', 'log_level')
+      @log_level ||= configuration_from_key('solr', 'log_level')
       @log_level ||= LOG_LEVELS[::Rails.logger.level]
     end
-
+    
     #
     # Should the solr index receive a commit after each http-request.
     # Default true
@@ -162,10 +155,9 @@ module Flare #:nodoc:
     # Boolean: auto_commit_after_request?
     #
     def auto_commit_after_request?
-      @auto_commit_after_request ||=
-        user_configuration_from_key('auto_commit_after_request') != false
+      @auto_commit_after_request ||= (configuration_from_key('auto_commit_after_request') != false)
     end
-
+    
     #
     # As for #auto_commit_after_request? but only for deletes
     # Default false
@@ -175,11 +167,9 @@ module Flare #:nodoc:
     # Boolean: auto_commit_after_delete_request?
     #
     def auto_commit_after_delete_request?
-      @auto_commit_after_delete_request ||=
-        (user_configuration_from_key('auto_commit_after_delete_request') || false)
+      @auto_commit_after_delete_request ||= (configuration_from_key('auto_commit_after_delete_request') || false)
     end
-
-
+    
     #
     # The log directory for solr logfiles
     #
@@ -188,18 +178,17 @@ module Flare #:nodoc:
     # String:: log_dir
     #
     def log_file
-      @log_file ||= (user_configuration_from_key('solr', 'log_file') || default_log_file_location )
+      @log_file ||= (configuration_from_key('solr', 'log_file') || default_log_file_location )
     end
-
+    
     def data_path
-      @data_path ||= user_configuration_from_key('solr', 'data_path') || File.join(::Rails.root, 'solr', 'data', ::Rails.env)
+      @data_path ||= configuration_from_key('solr', 'data_path') || File.join(::Rails.root, 'solr', 'data', ::Rails.env)
     end
-
+    
     def pid_dir
-      @pid_dir ||= user_configuration_from_key('solr', 'pid_dir') || File.join(::Rails.root, 'solr', 'pids', ::Rails.env)
+      @pid_dir ||= configuration_from_key('solr', 'pid_dir') || File.join(::Rails.root, 'solr', 'pids', ::Rails.env)
     end
-
-
+    
     #
     # The solr home directory. Sunspot::Rails expects this directory
     # to contain a config, data and pids directory. See
@@ -210,74 +199,68 @@ module Flare #:nodoc:
     # String:: solr_home
     #
     def solr_home
-      @solr_home ||=
-        if user_configuration_from_key('solr', 'solr_home')
-          user_configuration_from_key('solr', 'solr_home')
-        else
-          File.join(::Rails.root, 'solr')
-        end
+      @solr_home ||= configuration_from_key('solr', 'solr_home')
+      @solr_home ||= File.join(::Rails.root, 'solr')
     end
-
+    
     #
     # Solr start jar
     #
     def solr_jar
-      @solr_jar ||= user_configuration_from_key('solr', 'solr_jar')
+      @solr_jar ||= configuration_from_key('solr', 'solr_jar')
     end
-
+    
     #
     # Minimum java heap size for Solr instance
     #
     def min_memory
-      @min_memory ||= user_configuration_from_key('solr', 'min_memory')
+      @min_memory ||= configuration_from_key('solr', 'min_memory')
     end
-
+    
     #
     # Maximum java heap size for Solr instance
     #
     def max_memory
-      @max_memory ||= user_configuration_from_key('solr', 'max_memory')
+      @max_memory ||= configuration_from_key('solr', 'max_memory')
     end
-
+    
     #
     # Interface on which to run Solr
     #
     def bind_address
-      @bind_address ||= user_configuration_from_key('solr', 'bind_address')
+      @bind_address ||= configuration_from_key('solr', 'bind_address')
     end
-
+    
     def read_timeout
-      @read_timeout ||= user_configuration_from_key('solr', 'read_timeout')
+      @read_timeout ||= configuration_from_key('solr', 'read_timeout')
     end
-
+    
     def open_timeout
-      @open_timeout ||= user_configuration_from_key('solr', 'open_timeout')
+      @open_timeout ||= configuration_from_key('solr', 'open_timeout')
     end
-
+    
     #
     # Whether or not to disable Solr.
     # Defaults to false.
     #
     def disabled?
-      @disabled ||= (user_configuration_from_key('disabled') || false)
+      @disabled ||= (configuration_from_key('disabled') || false)
     end
-
+    
     #
     # The callback to use when automatically indexing records.
     # Defaults to after_save.
     #
     def auto_index_callback
-      @auto_index_callback ||=
-        (user_configuration_from_key('auto_index_callback') || 'after_save')
+      @auto_index_callback ||= (configuration_from_key('auto_index_callback') || 'after_save')
     end
-
+    
     #
     # The callback to use when automatically removing records after deletation.
     # Defaults to after_destroy.
     #
     def auto_remove_callback
-      @auto_remove_callback ||=
-        (user_configuration_from_key('auto_remove_callback') || 'after_destroy')
+      @auto_remove_callback ||= (configuration_from_key('auto_remove_callback') || 'after_destroy')
     end
     
     def url(u = nil)
@@ -291,27 +274,32 @@ module Flare #:nodoc:
       end
       res << "#{self.path}"
     end
-
+    
     def write_url
       self.url(self.userinfo)
     end
     
     def uid_prefix
       unless defined?(@uid_prefix)
-        @uid_prefix ||= default_configuration_from_key('solr', 'uid_prefix')
+        @uid_prefix ||= configuration_from_key('solr', 'uid_prefix')
       end
       @uid_prefix
     end
     
     def uid_code
       unless defined?(@uid_code)
-        @uid_code ||= default_configuration_from_key('solr', 'uid_code')
+        @uid_code ||= configuration_from_key('solr', 'uid_code')
       end
       @uid_code
     end
     
+    def configuration_from_key( *keys )
+      value = user_configuration_from_key(*keys)
+      value ||= default_configuration_from_key(*keys)
+    end
+    
     private
-
+    
     #
     # Logging in rails_root/log as solr_<environment>.log as a
     # default.
@@ -323,7 +311,15 @@ module Flare #:nodoc:
     def default_log_file_location
       File.join(::Rails.root, 'log', "solr_" + ::Rails.env + ".log")
     end
-
+    
+    def all_configurations
+      @all_configurations ||=
+        begin
+          settings_file = Rails.root.join('config', 'flare.yml')
+          settings_file.exist? ? YAML.load_file(settings_file) : {}
+        end
+    end
+    
     #
     # return a specific key from the user configuration in config/sunspot.yml
     #
@@ -336,21 +332,13 @@ module Flare #:nodoc:
         hash[key] if hash
       end
     end
-
+    
     def default_configuration_from_key( *keys )
       keys.inject(default_configuration) do |hash, key|
         hash[key] if hash
       end
     end
-
-    def all_configurations
-      @all_configurations ||=
-        begin
-          settings_file = Rails.root.join('config', 'flare.yml')
-          settings_file.exist? ? YAML.load_file(settings_file) : {}
-        end
-    end
-
+    
     #
     # Memoized hash of configuration options for the current Rails environment
     # as specified in config/sunspot.yml
@@ -366,7 +354,7 @@ module Flare #:nodoc:
     def default_configuration
       @default_configuration ||= all_configurations['default']
     end
-    
+     
   protected
 
     #
@@ -374,25 +362,25 @@ module Flare #:nodoc:
     # sunspot.yml file, look for a key named 'url', then check the
     # environment, then fall back to a sensible localhost default.
     #
-
+    
     def solr_url
       if ENV['SOLR_URL'] || ENV['WEBSOLR_URL']
         URI.parse(ENV['SOLR_URL'] || ENV['WEBSOLR_URL'])
       end
     end
-
+    
     def default_hostname
       'localhost'
     end
-
+    
     def default_scheme
       'http'
     end
-
+    
     def default_userinfo
       nil
     end
-
+    
     def default_path
       '/solr/default'
     end

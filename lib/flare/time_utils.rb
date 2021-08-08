@@ -13,7 +13,7 @@ module Flare
       end_time = self.class.end_time
       if !(now.saturday? || now.sunday?) && self.class.start_time<now && now<end_time
         delay = end_time - now
-        self.log.debug { "#{Time.now}: Resting until #{end_time}..." }
+        #self.log.debug { "#{Time.now}: Resting until #{end_time}..." }
         sleep(delay)
       end
     end

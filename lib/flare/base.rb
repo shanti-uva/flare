@@ -28,7 +28,6 @@ module Flare
       return if version.nil?
       klass.session.delete_by((klass.flare_scope + [self.uid_query, "NOT _version_:#{version}"]).join(' AND '))
     end
-
     
     def remove
       klass = self.class
@@ -45,16 +44,19 @@ module Flare
       log = Rails.logger
       #self.remove_subdocs
       doc = document_for_rsolr
-      log.fatal { "#{Flare::IndexerJob.now}: [INDEX] document prepared for #{self.id}." }
+      #log.fatal { "#{Flare::IndexerJob.now}: [INDEX] document prepared for #{self.id}." }
       klass.session.index(doc)
       #self.commit(true) at least soft commit would be needed fetching latest version to identify orphans (previous versions)
       #self.remove_orphaned_subdocs
+      klass.after_index(self)
+      return true
     end
     
     def index!
       klass = self.class
       self.remove_subdocs
       klass.session.index!(document_for_rsolr)
+      klass.after_index(self)
       return true
     end
     
@@ -298,7 +300,7 @@ module Flare
         @scope ||= []
       end
     
-      def setup(options)
+      def setup(options, &block)
         config = Flare::Configuration.new(hostname: options[:hostname], path: options[:path])
         @session = Session.new(config)
         options_prefix = options[:uid_prefix]
@@ -307,10 +309,15 @@ module Flare
         @uid_code = options_code.blank? ? config.uid_code : options_code
         scope_hash = options[:scope]
         @scope = scope_hash.blank? ? [] : scope_hash.to_a.collect{|e| e.join(':')}
+        @after_index_block = block
       end
       
       def oldest_document
         self.search_by("tree:#{self.uid_prefix}", sort: '_timestamp_ ASC', rows: 1)['docs'].first
+      end
+      
+      def after_index(record)
+        @after_index_block.call(record)
       end
     end
   end
