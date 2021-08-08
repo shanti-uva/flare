@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
   
-  spec.add_dependency "rails", "~> 5.2.4", ">= 5.2.4.2"
+  spec.add_dependency "rails", "~> 5.2.4"
   spec.add_dependency "activeresource"
   spec.add_dependency 'faraday', '~> 0.11.0'
   spec.add_dependency 'rsolr', '~> 2.0.0.pre3'
