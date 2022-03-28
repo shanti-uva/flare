@@ -24,7 +24,8 @@ module Flare
     end
     
     def perform(object)
-      IndexerJob.delay_if_business_hours
+      delay = Feature.config.delay_if_business_hours
+      IndexerJob.delay_if_business_hours(delay) unless delay.nil?
       #Rails.logger.fatal { "#{IndexerJob.now}: [INDEX] beginning indexing of #{object.id}." }
       object.index
       #Rails.logger.fatal { "#{IndexerJob.now}: [INDEX] document indexed for #{object.id}." }

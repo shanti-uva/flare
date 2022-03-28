@@ -132,6 +132,25 @@ module Flare #:nodoc:
     end
     
     #
+    # Specifies the number of seconds to delay the indexer job if in business hours.
+    #
+    # ==== Returns
+    #
+    # String:: delay_if_business_hours
+    #
+    def delay_if_business_hours
+      unless defined?(@delay_if_business_hours)
+        value = configuration_from_key('solr', 'delay_if_business_hours')
+        if value.blank?
+          @delay_if_business_hours = nil
+        else
+          @delay_if_business_hours = value.to_i
+        end
+      end
+      @delay_if_business_hours
+    end
+    
+    #
     # The default log_level that should be passed to solr. You can
     # change the individual log_levels in the solr admin interface.
     # If no level is specified in the sunspot configuration file,

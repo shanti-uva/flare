@@ -38,10 +38,10 @@ module Flare
         !(now.saturday? || now.sunday?) && self.start_time<now && now<self.end_time
       end
       
-      def delay_if_business_hours
+      def delay_if_business_hours(delay = DELAY)
         if self.business_hours? && defined?(@@last)
           time_passed = self.now - @@last
-          wait_time = DELAY - time_passed
+          wait_time = delay - time_passed
           sleep(wait_time) if wait_time > 0
         end
         @@last = self.now
