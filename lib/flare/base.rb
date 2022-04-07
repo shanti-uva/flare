@@ -41,13 +41,13 @@ module Flare
     
     def index
       klass = self.class
-      log = Rails.logger
       #self.remove_subdocs
       doc = document_for_rsolr
       #log.fatal { "#{Flare::IndexerJob.now}: [INDEX] document prepared for #{self.id}." }
       klass.session.index(doc)
       #self.commit(true) at least soft commit would be needed fetching latest version to identify orphans (previous versions)
       #self.remove_orphaned_subdocs
+      klass.log.info { "#{Time.now}: Reindexed #{self.uid}." }
       klass.after_index(self)
       return true
     end
@@ -256,7 +256,7 @@ module Flare
       def config
         session.config
       end
-
+      
       # 
       # Resets the singleton session. This is useful for clearing out all
       # static data between tests, but probably nowhere else.
@@ -288,6 +288,10 @@ module Flare
         @session ||= Session.new
       end
       
+      def log
+        @log ||= nil
+      end
+      
       def uid_prefix
         @uid_prefix ||= nil
       end
@@ -310,6 +314,8 @@ module Flare
         scope_hash = options[:scope]
         @scope = scope_hash.blank? ? [] : scope_hash.to_a.collect{|e| e.join(':')}
         @after_index_block = block
+        @log = ActiveSupport::Logger.new(config.log_file)
+        @log.level = :info
       end
       
       def oldest_document
