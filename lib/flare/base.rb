@@ -64,6 +64,12 @@ module Flare
       IndexerJob.set(priority: priority).perform_later(self)
     end
     
+    def fs_index(force = true)
+      path = File.join(Rails.root, 'public', self.solr_url.path)
+      return if !force && File.exists?(path)
+      File.write(path, JSON.generate(self.document_for_rsolr))
+    end
+    
     module ClassMethods
       # Indexes objects on the singleton session.
       #
@@ -303,6 +309,10 @@ module Flare
       def flare_scope
         @scope ||= []
       end
+      
+      def post_to_index?
+        config.post_to_index?
+      end
     
       def setup(options, &block)
         config = Flare::Configuration.new(hostname: options[:hostname], path: options[:path])
@@ -323,7 +333,7 @@ module Flare
       end
       
       def after_index(record)
-        @after_index_block.call(record)
+        @after_index_block.call(record) if !@after_index_block.nil?
       end
     end
   end

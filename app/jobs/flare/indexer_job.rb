@@ -14,7 +14,7 @@ module Flare
       object = job.arguments.first
       previous = Delayed::Job.where(reference: object).first
       if previous.nil?
-        block.call
+        block.call if !block.nil?
         delayed_job = Delayed::Job.find(job.provider_job_id)
         delayed_job.update!(reference: object)
       else
@@ -27,7 +27,11 @@ module Flare
       delay = Feature.config.delay_if_business_hours
       IndexerJob.delay_if_business_hours(delay) unless delay.nil?
       #Rails.logger.fatal { "#{IndexerJob.now}: [INDEX] beginning indexing of #{object.id}." }
-      object.index
+      if object.class.post_to_index?
+        object.index
+      else
+        object.fs_index
+      end
       #Rails.logger.fatal { "#{IndexerJob.now}: [INDEX] document indexed for #{object.id}." }
     end
   end

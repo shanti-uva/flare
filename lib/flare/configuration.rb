@@ -312,6 +312,20 @@ module Flare #:nodoc:
       @uid_code
     end
     
+    def post_to
+      unless defined?(@post_to)
+        @post_to ||= configuration_from_key('solr', 'post_to')
+      end
+      @post_to
+    end
+    
+    def post_to_index?
+      unless defined?(@post_to_index)
+        @post_to_index ||= post_to=='index'
+      end
+      @post_to_index
+    end
+    
     def configuration_from_key( *keys )
       value = user_configuration_from_key(*keys)
       value ||= default_configuration_from_key(*keys)
