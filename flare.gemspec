@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   
   spec.add_dependency "rails", "~> 5.2.4"
   spec.add_dependency "activeresource"
-  spec.add_dependency 'faraday', '~> 0.11.0'
+  spec.add_dependency 'faraday'
   spec.add_dependency 'rsolr', '~> 2.0.0.pre3'
   spec.add_dependency 'delayed_job_active_record'
   spec.add_dependency 'daemons'
