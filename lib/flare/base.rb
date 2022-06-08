@@ -64,9 +64,11 @@ module Flare
       IndexerJob.set(priority: priority).perform_later(self)
     end
     
+    # Do a filesystem index. If block is given run after checking file existence and before actual writing.
     def fs_index(force = true)
       path = File.join(Rails.root, 'public', self.solr_url.path)
       return true if !force && File.exists?(path)
+      yield if block_given?
       File.write(path, JSON.generate(self.document_for_rsolr))
     end
     
