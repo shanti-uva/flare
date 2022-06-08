@@ -66,7 +66,7 @@ module Flare
     
     def fs_index(force = true)
       path = File.join(Rails.root, 'public', self.solr_url.path)
-      return if !force && File.exists?(path)
+      return true if !force && File.exists?(path)
       File.write(path, JSON.generate(self.document_for_rsolr))
     end
     
