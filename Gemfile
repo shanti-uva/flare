@@ -15,3 +15,4 @@ gemspec
 # gem 'byebug', group: [:development, :test]
 gem 'activeresource', require: 'active_resource'
 gem 'delayed_job_active_record'
+gem 'rails'
