@@ -28,7 +28,7 @@ module Flare
       @write_connection.delete_by_query(query)
     end
     
-    def find_by(query, options = {})
+    def find_by(query, **options)
       params = {q: query}
       if options.empty?
         full_response = false
@@ -44,7 +44,7 @@ module Flare
       find_by("uid:#{id}")['docs'].first
     end
 
-    def paginate(options)
+    def paginate(**options)
       resp = @connection.paginate(options[:page], options[:per_page], 'select', params: {q: options[:query]})
       WillPaginate::Collection.create(options[:page], options[:per_page], resp['response']['numFound'].to_i) { |pager| pager.replace(resp['response']['docs']) }
     end

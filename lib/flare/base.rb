@@ -205,16 +205,16 @@ module Flare
         scope.blank? ? session.find(self.uid(id)) : session.find_by((scope+[self.uid_query(id)]).join(' AND '))['docs'].first
       end
           
-      def search_by(query, options = {})
+      def search_by(query, **options)
         scope = flare_scope
-        scope.blank? ? session.find_by(query,options) : session.find_by("(#{scope.join(' AND ')}) AND (#{query})", options)
+        scope.blank? ? session.find_by(query, **options) : session.find_by("(#{scope.join(' AND ')}) AND (#{query})", **options)
       end
 
-      def paginate(options)
+      def paginate(**options)
         paginate_options = options.dup
         scope = flare_scope
         paginate_options[:query] =  "(#{scope.join(' AND ')}) AND (#{paginate_options[:query]})" unless scope.blank?
-        session.paginate(paginate_options)
+        session.paginate(**paginate_options)
       end
 
       #
@@ -316,7 +316,7 @@ module Flare
         config.post_to_index?
       end
     
-      def setup(options, &block)
+      def setup(**options, &block)
         config = Flare::Configuration.new(hostname: options[:hostname], path: options[:path])
         @session = Session.new(config)
         options_prefix = options[:uid_prefix]

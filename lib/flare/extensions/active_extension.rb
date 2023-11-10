@@ -6,11 +6,11 @@ module Flare
     end
 
     module ClassMethods
-      def acts_as_indexable(options = {}, &block)
+      def acts_as_indexable(**options, &block)
         class_eval do
           include Flare::Base
         end
-        setup(options, &block)
+        setup(**options, &block)
       end
     end
   end
