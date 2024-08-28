@@ -11,7 +11,7 @@ module Flare
     end
     
     def search
-      klass = self.class      
+      klass = self.class
       scope = klass.flare_scope
       scope.blank? ? klass.session.find(self.uid) : klass.session.find_by((scope+[self.uid_query]).join(' AND '))['docs'].first
     end
@@ -70,6 +70,14 @@ module Flare
       return true if !force && File.exists?(path)
       yield if block_given?
       File.write(path, JSON.generate(self.document_for_rsolr))
+    end
+    
+    def fs_remove
+      klass = self.class
+      scope = klass.flare_scope
+      query = scope.blank? ? { id: self.uid } : { query: (scope+[self.uid_query]).join(' AND ') }
+      path = File.join(Rails.root, 'public', self.solr_url.path)
+      File.write(path, JSON.generate( { delete: query } ))
     end
     
     module ClassMethods
@@ -170,6 +178,19 @@ module Flare
           else
             session.delete_by("(#{scope.join(' AND ')}) AND (#{ids.collect{|id| self.uid_query(id) }.join(' OR ')})")
           end
+        end
+      end
+      
+      def fs_remove(*ids)
+        scope = self.flare_scope
+        path = File.join(Rails.root, 'public', self.solr_url.path)
+        ids.each do |id|
+          if scope.blank?
+            query = { id: self.uid(id) }
+          else
+            query = { query: (scope+[self.uid_query(id)]).join(' AND ') }
+          end
+          File.write(File.join(path, "#{id}.json"), JSON.generate( { delete: query } ))
         end
       end
 
