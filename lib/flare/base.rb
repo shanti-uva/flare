@@ -66,7 +66,7 @@ module Flare
     
     # Do a filesystem index. If block is given run after checking file existence and before actual writing.
     def fs_index(force = true)
-      path = File.join(Rails.root, 'public', self.solr_url.path)
+      path = File.join(Rails.root, 'public', 'solr', self.solr_filename)
       return true if !force && File.exists?(path)
       yield if block_given?
       File.write(path, JSON.generate(self.document_for_rsolr))
@@ -74,10 +74,8 @@ module Flare
     
     def fs_remove
       klass = self.class
-      scope = klass.flare_scope
-      query = scope.blank? ? { id: self.uid } : { query: (scope+[self.uid_query]).join(' AND ') }
-      path = File.join(Rails.root, 'public', self.solr_url.path)
-      File.write(path, JSON.generate( { delete: query } ))
+      path = File.join(Rails.root, 'public', 'solr', "#{self.updated_at.to_i}.idx")
+      File.write(path, self.uid)
     end
     
     module ClassMethods
@@ -182,16 +180,9 @@ module Flare
       end
       
       def fs_remove(*ids)
-        scope = self.flare_scope
-        path = File.join(Rails.root, 'public', self.solr_url.path)
-        ids.each do |id|
-          if scope.blank?
-            query = { id: self.uid(id) }
-          else
-            query = { query: (scope+[self.uid_query(id)]).join(' AND ') }
-          end
-          File.write(File.join(path, "#{id}.json"), JSON.generate( { delete: query } ))
-        end
+        uri = URI.join(self.solr_url.to_s, "#{Time.current.to_i}.idx")
+        path = File.join(Rails.root, 'public', uri.path)
+        File.write(path, ids.collect{ |id| self.uid(id)}.join("\n"))
       end
 
       # 
