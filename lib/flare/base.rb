@@ -74,7 +74,7 @@ module Flare
     
     def fs_remove
       klass = self.class
-      path = File.join(Rails.root, 'public', 'solr', "#{self.updated_at.to_i}.idx")
+      path = File.join(Rails.root, 'public', 'solr', "#{self.updated_at.to_i}-del.ids")
       File.write(path, self.uid)
     end
     
@@ -180,7 +180,7 @@ module Flare
       end
       
       def fs_remove(*ids)
-        uri = URI.join(self.solr_url.to_s, "#{Time.current.to_i}.idx")
+        uri = URI.join(self.solr_url.to_s, "#{Time.current.to_i}-del.ids")
         path = File.join(Rails.root, 'public', uri.path)
         File.write(path, ids.collect{ |id| self.uid(id)}.join("\n"))
       end
