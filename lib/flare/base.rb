@@ -179,9 +179,21 @@ module Flare
         end
       end
       
+      def flare_blank(*ids)
+        ids.each do |id|
+          doc = self.blank_document_for_rsolr(id)
+          self.session.index(doc)
+          self.log.info { "#{Time.now}: Blanking #{id}." }
+        end
+      end
+      
+      def fs_blank(*ids)
+        path = File.join(Rails.root, 'public', 'solr')
+        ids.each { |id| File.write(File.join(path, self.solr_filename(id)), JSON.generate(self.blank_document_for_rsolr(id))) }
+      end
+      
       def fs_remove(*ids)
-        uri = URI.join(self.solr_url.to_s, "#{Time.current.to_i}-del.ids")
-        path = File.join(Rails.root, 'public', uri.path)
+        path = File.join(Rails.root, 'public', 'solr', "#{Time.current.to_i}-del.ids")
         File.write(path, ids.collect{ |id| self.uid(id)}.join("\n"))
       end
 
@@ -352,4 +364,3 @@ module Flare
     end
   end
 end
-
