@@ -8,11 +8,11 @@ module Flare
     MEDIUM = 3
     HIGH = 0
     
-    queue_as :default
+    queue_as :indexer
     
     around_enqueue do |job, block|
       object = job.arguments.first
-      previous = Delayed::Job.where(reference: object).first
+      previous = Delayed::Job.where(queue: IndexerJob.queue_name, reference: object).first
       if previous.nil?
         block.call if !block.nil?
         delayed_job = Delayed::Job.find(job.provider_job_id)
