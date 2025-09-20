@@ -16,7 +16,7 @@ require 'delayed_job_active_record'
 
 require 'flare/base'
 require 'flare/extensions/delayed_job'
-Delayed::Job.send :include, Flare::DelayedJobExtension
+Delayed::Job.include Flare::DelayedJobExtension
 
 %w(configuration indexer session).each do |filename|
   require File.join(File.dirname(__FILE__), 'flare', filename)
