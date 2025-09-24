@@ -6,7 +6,7 @@ module Flare
       belongs_to :reference, polymorphic: true
     end
 
-    module ClassMethods
+    class_methods do
     end
   end
 end

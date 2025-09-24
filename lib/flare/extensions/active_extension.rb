@@ -5,7 +5,7 @@ module Flare
     included do
     end
 
-    module ClassMethods
+    class_methods do
       def acts_as_indexable(**options, &block)
         class_eval do
           include Flare::Base

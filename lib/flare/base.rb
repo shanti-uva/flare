@@ -78,7 +78,7 @@ module Flare
       File.write(path, self.uid)
     end
     
-    module ClassMethods
+    class_methods do
       # Indexes objects on the singleton session.
       #
       # ==== Parameters

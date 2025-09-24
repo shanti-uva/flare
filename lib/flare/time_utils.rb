@@ -18,7 +18,7 @@ module Flare
       end
     end
 
-    module ClassMethods
+    class_methods do
       def now
         Time.now + GMT_OFFSET.hours
       end
