@@ -16,3 +16,4 @@ gemspec
 gem 'activeresource', require: 'active_resource'
 gem 'delayed_job_active_record'
 gem 'rails'
+gem 'sass-rails'
