@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    flare (1.4.7)
+    flare (1.4.9)
       activeresource
       daemons
       delayed_job_active_record
