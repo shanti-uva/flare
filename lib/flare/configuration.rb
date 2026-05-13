@@ -66,6 +66,21 @@ module Flare #:nodoc:
       end
       @hostname
     end
+
+    #
+    # In case there is a need from app to have a public hostname.
+    #
+    # ==== Returns
+    #
+    # String:: host name
+    #
+    def public_hostname
+      unless defined?(@public_hostname)
+        @public_hostname = configuration_from_key('solr', 'public_hostname')
+        @public_hostname ||= hostname
+      end
+      @public_hostname
+    end
     
     #
     # The scheme to use, http or https.
@@ -282,6 +297,10 @@ module Flare #:nodoc:
       @auto_remove_callback ||= (configuration_from_key('auto_remove_callback') || 'after_destroy')
     end
     
+    def write_url
+      self.url(self.userinfo)
+    end
+    
     def url(u = nil)
       s = self.hostname
       if !s.start_with? 'http'
@@ -294,8 +313,16 @@ module Flare #:nodoc:
       res << "#{self.path}"
     end
     
-    def write_url
-      self.url(self.userinfo)
+    def public_url(u = nil)
+      s = self.public_hostname
+      if !s.start_with? 'http'
+        res = "#{self.scheme}://"
+        res << "#{u}@" if !u.blank?
+        res << s
+      else
+        res = s.dup
+      end
+      res << "#{self.path}"
     end
     
     def uid_prefix
